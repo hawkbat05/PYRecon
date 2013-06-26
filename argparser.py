@@ -51,6 +51,7 @@ class argparser:
         self.wgetSSL_output_data = ''
         self.wgetTomcat_output_data = ''
         self.debug = False
+        self.connectTimeout = 90
         
         
     '''       
@@ -93,6 +94,10 @@ class argparser:
                 if option == 'debug':
                     self.debug = True
                     print option + ': ' + str(self.debug)
+                    
+                if option == 'connect-timeout':
+                    self.connectTimeout = int(args[i+1])
+                    print option + ': ' + str(self.connectTimeout)
 
         print ''                    
        
