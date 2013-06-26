@@ -46,6 +46,7 @@ def Usage():
     print '--target[Must be IP to work properly] - the host you \'re investigation - only use with fail2ban and manual modes'
     print '--supresswget - will not attempt a WGET against the target.'
     print '--supressemail - will not send out an e-mail summarizing the actions taken.'
+    print '--retries - sets the maximum retries for WGet, default is 5'
     print '--debug - prints verbose logging to the screen to troubleshoot issues with a recon installation.'
     print '--help - You\'re looking at it!'
     sys.exit(-1)
@@ -106,7 +107,7 @@ def NMap(target, logdir):
 WGet()
 Function: Execute a WGet against the provided target
 '''
-def WGet(target, logdir):
+def WGet(target, logdir, retries=5):
     filename = logdir + 'index.html'
 
     if (AP.debug == True):
@@ -116,7 +117,7 @@ def WGet(target, logdir):
     #            -S Show the original server headers
     #            -O output to given filename
 
-    subproc = subprocess.Popen('wget --tries=5 -S -O ' + filename + ' ' + target, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    subproc = subprocess.Popen('wget --tries=' + str(retries) + ' -S -O ' + filename + ' ' + target, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     for wget_data in subproc.stdout.readlines():
         AP.wget_output_data += wget_data
         if (AP.debug == True):
@@ -131,8 +132,7 @@ def WGet(target, logdir):
     #            -S Show the original server headers
     #            -O output to given filename
     
-
-    subproc = subprocess.Popen('wget --tries=5 -S -O ' + filename + ' ' + target + ':443', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    subproc = subprocess.Popen('wget --tries=' + str(retries) + ' -S -O ' + filename + ' ' + target + ':443', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     for wgetSSL_data in subproc.stdout.readlines():
         AP.wgetSSL_output_data += wgetSSL_data
         if (AP.debug == True):
@@ -147,7 +147,7 @@ def WGet(target, logdir):
     #            -S Show the original server headers
     #            -O output to given filename
 
-    subproc = subprocess.Popen('wget --tries=5 -S -O ' + filename + ' ' + target + ':8080', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    subproc = subprocess.Popen('wget --tries=' + str(retries) + ' -S -O ' + filename + ' ' + target + ':8080', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     for wgetTomcat_data in subproc.stdout.readlines():
         AP.wgetTomcat_output_data += wgetTomcat_data
         if (AP.debug == True):
@@ -283,7 +283,7 @@ if __name__ == '__main__':
                     Whois(current_IP, logdir)
                     NMap(current_IP, logdir)
                     if (AP.supresswget == False): 
-                        WGet(current_IP, logdir)
+                        WGet(current_IP, logdir, AP.retries)
                     if (AP.supressemail == False): 
                         Email(current_IP, logdir)
                 else:
@@ -306,7 +306,7 @@ if __name__ == '__main__':
                 Whois(AP.target, logdir)
                 NMap(AP.target, logdir)
                 if (AP.supresswget == False):
-                    WGet(AP.target, logdir)
+                    WGet(AP.target, logdir, AP.retries)
                 if (AP.supressemail == False):
                     Email(AP.target, logdir)
             else:
